@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <title> Lesson 1 </title>
+    <script src="js/bitmap.js"></script>
+    <style>
+      body,html {
+        background-color: #000;
+      }
+      #viewport-container{
+      }
+      #viewport-container canvas {
+        background-color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="viewport-container">
+    </div>
+    <script>
+      var $viewport = document.getElementById('viewport-container');
+      var bitmap = new Bitmap( 32, 32, $viewport );
+      bitmap.clear();
+      bitmap.putPixel([0,255,0,255], 16, 16);
+      bitmap.putPixel([0,255,0,255], 15, 15);
+      bitmap.putPixel([0,255,0,255], 14, 14);
+      bitmap.putPixel([0,255,0,255], 13, 13);
+
+    </script>
+  </body>
+</html>
