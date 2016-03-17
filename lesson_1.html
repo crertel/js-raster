@@ -2,6 +2,7 @@
   <head>
     <title> Lesson 1 </title>
     <script src="js/bitmap.js"></script>
+    <script src="js/bresenham.js"></script>
     <style>
       body,html {
         background-color: #000;
@@ -17,13 +18,34 @@
     <div id="viewport-container">
     </div>
     <script>
+      var kWidth = 256;
+      var kHeight = 256;
       var $viewport = document.getElementById('viewport-container');
-      var bitmap = new Bitmap( 32, 32, $viewport );
-      bitmap.clear();
-      bitmap.putPixel([0,255,0,255], 16, 16);
-      bitmap.putPixel([0,255,0,255], 15, 15);
-      bitmap.putPixel([0,255,0,255], 14, 14);
-      bitmap.putPixel([0,255,0,255], 13, 13);
+      var bitmap = new Bitmap( kWidth, kHeight, $viewport );
+
+      var theta = 0;
+      var radius = 100;
+      var kSpeed = 0.025 ; // rad/sec
+      var kUpdateRate = 100 / 1000;
+
+      window.setInterval( function() {
+          theta += kSpeed * kUpdateRate;
+          if ( theta > (2 * Math.PI) ) {
+            theta -= 2 * Math.PI;
+          }
+          bitmap.clear();
+          bresenhamLine(  bitmap,
+            [
+              (kWidth/2),
+              (kHeight/2)
+            ],
+            [
+              (kWidth/2) + (radius * Math.cos(theta) ),
+              (kHeight/2) + (radius * Math.sin(theta) )
+            ],
+            [0,255,0,255]
+        );
+      }, kUpdateRate);
 
     </script>
   </body>

@@ -1,5 +1,3 @@
-console.log("Loaded bitmap shim.");
-
 function Bitmap( width, height, $container ) {
   this._width = width;
   this._height = height;
@@ -28,3 +26,5 @@ Bitmap.prototype.putPixel = function( val, x, y ){
 
   this._ctx.putImageData(imgData, x, y);
 }
+
+console.log("Loaded bitmap shim.");
