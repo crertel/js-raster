@@ -31,9 +31,6 @@ function bresenhamLine( canvas, p0, p1, color ) {
       canvas.putPixel( color, tx, ty );
     }
   }
-  var color = [0,0,255,255];
-  canvas.putPixel( color, p0[0], p0[1] );
-  canvas.putPixel( color, p1[0], p1[1] );
 }
 
 console.log("Loaded bresenham line drawing.");
