@@ -7,24 +7,22 @@ function Bitmap( width, height, $container ) {
   $container.appendChild( this._$canvas );
   this._ctx = this._$canvas.getContext('2d');
   this._imageInfo = this._ctx.createImageData( this._$canvas.width, this._$canvas.height );
+  this._frameBufferData = new Uint8ClampedArray( this._width * this._height * 4 );
+  this._frameBuffer = new ImageData(  this._frameBufferData, this._width, this._height );
+  this._tempPixelData = new Uint8ClampedArray(4);
+  this._tempPixel = new ImageData(this._tempPixelData,1,1);
 }
 
 Bitmap.prototype.clear = function() {
-  var imgData = new ImageData(  new Uint8ClampedArray( this._width * this._height * 4 ),
-                                this._width,
-                                this._height );
-  this._ctx.putImageData(imgData,0,0);
+  this._ctx.putImageData(this._frameBuffer,0,0);
 }
 
-Bitmap.prototype.putPixel = function( val, x, y ){
-  var col = new Uint8ClampedArray(4);
-  col[0] = val[0];
-  col[1] = val[1];
-  col[2] = val[2];
-  col[3] = val[3];
-  var imgData = new ImageData(col,1,1);
-
-  this._ctx.putImageData(imgData, x, y);
+Bitmap.prototype.putPixel = function( val, x, y ){  
+  this._tempPixelData[0] = val[0];
+  this._tempPixelData[1] = val[1];
+  this._tempPixelData[2] = val[2];
+  this._tempPixelData[3] = val[3];
+  this._ctx.putImageData(this._tempPixel, x, y);
 }
 
 console.log("Loaded bitmap shim.");
