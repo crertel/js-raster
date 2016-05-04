@@ -40,7 +40,7 @@ Model.prototype.loadFromOBJString = function( src ) {
     if (toks.length < 3 || toks.length > 4) {
       throw new Error("Malformed vertex");
     }
-    return [];
+    return toks.slice(1).map(Number.parseFloat);
   };
 
   function decodeNormal( toks ) {
@@ -48,7 +48,7 @@ Model.prototype.loadFromOBJString = function( src ) {
       throw new Error("Malformed normal");
     }
     
-    return [];
+    return toks.slice(1).map(Number.parseFloat);
   };
 
   function decodeUV( toks ) {
@@ -56,21 +56,66 @@ Model.prototype.loadFromOBJString = function( src ) {
       throw new Error("Malformed UV");
     }
 
-    return [];
+    return toks.slice(1).map(Number.parseFloat);
   };
+
+  function decodeFaceToken(tok){
+
+    var indices = {
+      vert: 0,
+      uv: 0,
+      normal: 0
+    };
+
+    var kVertIndexOnly = /\d*/;
+    var kVertAndUVOnly = /^(\d*)\/(\d*)$/;
+    var kVertAndNormalOnly = /^(\d*)\/\/(\d*)$/;
+    var kVertUVNormal = /^(\d*)\/(\d*)\/(\d*)$/;
+
+    var match;    
+    switch( true ) {
+      case (kVertIndexOnly.test(tok)):      indices.vert = Number.parseInt(tok,10);
+                                            break;
+      case (kVertAndUVOnly.test(tok)):      match = tok.match(kVertAndUVOnly);
+                                            indices.vert = Number.parseInt(match[1],10);
+                                            indices.uv = Number.parseInt(match[2],10);
+                                            break;
+      case (kVertAndNormalOnly.test(tok)):  match = tok.match(kVertAndNormalOnly);
+                                            indices.vert = Number.parseInt(match[1],10);
+                                            indices.normal = Number.parseInt(match[2],10);
+                                            break;
+      case (kVertUVNormal.test(tok)):       match = tok.match(kVertUVNormal);
+                                            indices.vert = Number.parseInt(match[1],10);
+                                            indices.uv = Number.parseInt(match[2],10);
+                                            indices.normal = Number.parseInt(match[3],10);
+                                            break;
+      default: break;
+    }
+
+    return indices;
+  }
 
   function decodeFace( toks ) {
     if (toks.length < 4) {
       throw new Error("Malformed face");
     }
 
-    var indices = {
-      verts: [],
-      uvs: [],
-      norms: []
-    };
+    if (toks.length > 4) {
+      throw new Error("Nontriangulated face (unsupported)");
+    }
 
-    return indices;
+    return toks.slice(1)
+            .map(decodeFaceToken)
+            .reduce( function globIndices( out, indices ){
+              out.verts.push( indices.vert );
+              out.uvs.push( indices.uv );
+              out.norms.push( indices.normal );
+              return out;
+          },{
+            verts: [],
+            uvs: [],
+            norms: []
+          });
   }
 
   var parsedState = processedLines.reduce( function (state, line) {
@@ -92,7 +137,8 @@ Model.prototype.loadFromOBJString = function( src ) {
   this._verts = Float32Array.from( parsedState.verts );
   this._uvs = Float32Array.from( parsedState.uvs );
   this._normals = Float32Array.from( parsedState.norms );
-
+  this._faces = Int32Array.from(parsedState.faces);
+  
   console.log('Model has\n',
     '\t', this._verts.length/3, ' vertices\n',
     '\t', this._uvs.length/3, ' UVs\n',
