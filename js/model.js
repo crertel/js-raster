@@ -2,25 +2,25 @@ function Model() {
   this._verts = new Float32Array();
   this._normals = new Float32Array();
   this._uvs = new Float32Array();
-  this._faces = new Int32Array();
+  this._faces = new Int32Array(); // in form v0,uv0,n0,v1,uv1,n1, etc.
 }
 
 Model.prototype.toTriArray = function() {
   // this assumes face indices are trilists and not strips
-  return this._faces.reduce( function( acc, el, idx) {
+  var faceCount = this._faces.length / 9;
+  var out = this._faces.reduce( function( acc, el, faceIndex) {
     // unpack the face indexes into an array of 3-tuples
-    if (idx % 3) {
-      acc.push([]);
-    }
-    acc[acc.length-1][idx % 3] = el;
+    var currFace = Math.floor(faceIndex / 9);
+    if (faceIndex % 3 == 0) {
+      var currVert = (faceIndex - 9 * currFace) /3 ;
+      acc[currFace*9 + currVert*3 + 0] = this._verts[3*el + 0];
+      acc[currFace*9 + currVert*3 + 1] = this._verts[3*el + 1];
+      acc[currFace*9 + currVert*3 + 2] = this._verts[3*el + 2];
+    }  
     return acc;
-  }, [])
-  .reduce( function( acc, el, idx ) {
-    acc.set( this._verts.subarray( 3 * el[0], 3 * el[0] + 1 ), (idx * 9) );
-    acc.set( this._verts.subarray( 3 * el[1], 3 * el[1] + 2 ), (idx * 9) + 3 );
-    acc.set( this._verts.subarray( 3 * el[2], 3 * el[2] + 3 ), (idx * 9) + 6);
-    return acc;
-  }, new Float32Array( this.faces.length * 3 * 3));
+  }.bind(this), new Float32Array( faceCount * 9));
+  
+  return out;
 }
 
 Model.prototype.loadFromOBJString = function( src ) {
@@ -37,7 +37,7 @@ Model.prototype.loadFromOBJString = function( src ) {
   };
 
   function decodeVertex( toks ) {
-    if (toks.length < 3 || toks.length > 4) {
+    if (toks.length !== 4) {
       throw new Error("Malformed vertex");
     }
     return toks.slice(1).map(Number.parseFloat);
@@ -52,10 +52,9 @@ Model.prototype.loadFromOBJString = function( src ) {
   };
 
   function decodeUV( toks ) {
-    if (toks.length < 3 || toks.length > 4) {
+    if (toks.length !== 3) {
       throw new Error("Malformed UV");
     }
-
     return toks.slice(1).map(Number.parseFloat);
   };
 
@@ -107,15 +106,11 @@ Model.prototype.loadFromOBJString = function( src ) {
     return toks.slice(1)
             .map(decodeFaceToken)
             .reduce( function globIndices( out, indices ){
-              out.verts.push( indices.vert );
-              out.uvs.push( indices.uv );
-              out.norms.push( indices.normal );
+              out.push( indices.vert - 1 );
+              out.push( indices.uv - 1);
+              out.push( indices.normal - 1);
               return out;
-          },{
-            verts: [],
-            uvs: [],
-            norms: []
-          });
+          },[]);
   }
 
   var parsedState = processedLines.reduce( function (state, line) {
@@ -125,7 +120,7 @@ Model.prototype.loadFromOBJString = function( src ) {
         case ('v' === toks[0]) :  state.verts = state.verts.concat(decodeVertex(toks)); break;
         case ('vn' === toks[0]) : state.norms = state.verts.concat(decodeNormal(toks)); break;
         case ('vt' === toks[0]) : state.uvs = state.uvs.concat(decodeUV(toks)); break;
-        case ('f' === toks[0]) :  state.faces = state.faces.concat(decodeFace(toks).verts); break;
+        case ('f' === toks[0]) :  state.faces = state.faces.concat(decodeFace(toks)); break;
         default: throw new Error("Unrecognized line"); break;
       }      
     } catch( e ) {
@@ -138,10 +133,10 @@ Model.prototype.loadFromOBJString = function( src ) {
   this._uvs = Float32Array.from( parsedState.uvs );
   this._normals = Float32Array.from( parsedState.norms );
   this._faces = Int32Array.from(parsedState.faces);
-  
+
   console.log('Model has\n',
     '\t', this._verts.length/3, ' vertices\n',
-    '\t', this._uvs.length/3, ' UVs\n',
+    '\t', this._uvs.length/2, ' UVs\n',
     '\t', this._normals.length/3, ' normals\n',
     '\t', this._faces.length/3, ' faces');
 

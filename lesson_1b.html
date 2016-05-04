@@ -19,19 +19,33 @@
     <div id="viewport-container">
     </div>
     <script>
-      var kWidth = 256;
-      var kHeight = 256;
+      var kWidth = 512;
+      var kHeight = 512;
       var $viewport = document.getElementById('viewport-container');
       var bitmap = new Bitmap( kWidth, kHeight, $viewport );
       var model = new Model();
 
       bitmap.clear();      
       var r = new XMLHttpRequest();
-      r.open("GET", "/assets/african_head/african_head.obj", true);
+      //r.open("GET", "/assets/african_head/african_head.obj", true);
+      r.open("GET", "/assets/bunny/bunny.obj", true);
+      //r.open("GET", "/assets/cube/cube.obj", true);
       r.onreadystatechange = function () {
         if (r.readyState == 4 && r.status < 400) {
           console.log('Got model!');
           model.loadFromOBJString(r.responseText);
+          var triBuffer = model.toTriArray();
+          for (var i = 0; i < triBuffer.length/3; i++ ){
+            var ax = (triBuffer[9*i + 0]+1) * kWidth/2;
+            var ay = (-triBuffer[9*i + 1]+1) * kHeight/2;
+            var bx = (triBuffer[9*i + 3]+1)* kWidth/2;
+            var by = (-triBuffer[9*i + 4]+1)* kHeight/2;
+            var cx = (triBuffer[9*i + 6]+1) * kWidth/2;
+            var cy = (-triBuffer[9*i + 7]+1) * kHeight/2;
+            bresenhamLine(  bitmap, [ ax, ay ], [ bx, by ], [0,255,0,255]  );
+            bresenhamLine(  bitmap, [ bx, by ], [ cx, cy ], [0,255,0,255]  );
+            bresenhamLine(  bitmap, [ cx, cy ], [ ax, ay ], [0,255,0,255]  );
+          }
         }
       };
       r.send();
