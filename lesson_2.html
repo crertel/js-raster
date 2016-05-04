@@ -1,8 +1,8 @@
 <html>
   <head>
-    <title> Lesson 1b: Mesh Line Drawing </title>
+    <title> Lesson 2: Flat Shading </title>
     <script src="js/bitmap.js"></script>
-    <script src="js/bresenham.js"></script>
+    <script src="js/rasterFlatTriangleBarycentric.js"></script>
     <script src="js/model.js"></script>
     <style>
       body,html {
@@ -27,8 +27,8 @@
 
       bitmap.clear();
       var r = new XMLHttpRequest();
-      r.open("GET", "/assets/african_head/african_head.obj", true);
-      //r.open("GET", "/assets/bunny/bunny.obj", true);
+      //r.open("GET", "/assets/african_head/african_head.obj", true);
+      r.open("GET", "/assets/bunny/bunny.obj", true);
       //r.open("GET", "/assets/cube/cube.obj", true);
       r.onreadystatechange = function () {
         if (r.readyState == 4 && r.status < 400) {
@@ -38,14 +38,20 @@
           for (var i = 0; i < triBuffer.length/3; i++ ){
             var ax = (triBuffer[9*i + 0]+1) * kWidth/2;
             var ay = (triBuffer[9*i + 1]+1) * kHeight/2;
+            var az = (triBuffer[9*i + 2]+1) * kHeight/2;
             var bx = (triBuffer[9*i + 3]+1)* kWidth/2;
             var by = (triBuffer[9*i + 4]+1)* kHeight/2;
+            var bz = (triBuffer[9*i + 5]+1) * kHeight/2;
             var cx = (triBuffer[9*i + 6]+1) * kWidth/2;
             var cy = (triBuffer[9*i + 7]+1) * kHeight/2;
-            bresenhamLine(  bitmap, [ ax, ay ], [ bx, by ], [0,255,0,255]  );
-            bresenhamLine(  bitmap, [ bx, by ], [ cx, cy ], [0,255,0,255]  );
-            bresenhamLine(  bitmap, [ cx, cy ], [ ax, ay ], [0,255,0,255]  );
+            var cz = (triBuffer[9*i + 8]+1) * kHeight/2;
+            rasterFlatTriangleBarycentric(  bitmap,
+                                            ax, ay, az,
+                                            bx, by, bz,
+                                            cx, cy, cz,
+                                            [0,255,0,255] );
           }
+          console.log("Done drawing.");
         }
       };
       r.send();
