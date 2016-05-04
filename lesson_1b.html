@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <title> Lesson 1b: Mesh Line Drawing </title>
+    <script src="js/bitmap.js"></script>
+    <script src="js/bresenham.js"></script>
+    <script src="js/model.js"></script>
+    <style>
+      body,html {
+        background-color: #000;
+      }
+      #viewport-container{
+      }
+      #viewport-container canvas {
+        background-color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="viewport-container">
+    </div>
+    <script>
+      var kWidth = 256;
+      var kHeight = 256;
+      var $viewport = document.getElementById('viewport-container');
+      var bitmap = new Bitmap( kWidth, kHeight, $viewport );
+      var model = new Model();
+
+      bitmap.clear();      
+      var r = new XMLHttpRequest();
+      r.open("GET", "/assets/african_head/african_head.obj", true);
+      r.onreadystatechange = function () {
+        if (r.readyState == 4 && r.status < 400) {
+          console.log('Got model!');
+          model.loadFromOBJString(r.responseText);
+        }
+      };
+      r.send();
+    </script>
+  </body>
+</html>
