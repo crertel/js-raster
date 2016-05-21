@@ -5,7 +5,7 @@ function bresenhamLine( canvas, p0, p1, color ) {
   var dydx = dy / dx;
   var dxdy = dx / dy;
 
-  // this check causes us to draw alo9ng the least-degenerate case
+  // this check causes us to draw along the least-degenerate case
   if ( Math.abs(dx) >= Math.abs(dy) ) {
     for ( var i = 0; i < Math.abs(dx); i++ ) {
       // this handles case where points are in inconvenient order
@@ -16,7 +16,7 @@ function bresenhamLine( canvas, p0, p1, color ) {
         var tx = -i  + p0[0];
         var ty = -i*dydx + p0[1];
       }
-      canvas.putPixel( color, tx, ty );
+      canvas.putPixel( tx, ty, color[0], color[1], color[2], color[3]);
     }
   } else {
     for ( var i = 0; i < Math.abs(dy); i++ ) {
@@ -28,7 +28,7 @@ function bresenhamLine( canvas, p0, p1, color ) {
         var tx = -i*dxdy  + p0[0];
         var ty = -i + p0[1];
       }
-      canvas.putPixel( color, tx, ty );
+      canvas.putPixel( tx, ty, color[0], color[1], color[2], color[3]);
     }
   }
 }

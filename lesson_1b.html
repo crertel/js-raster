@@ -25,7 +25,8 @@
       var bitmap = new Bitmap( kWidth, kHeight, $viewport );
       var model = new Model();
 
-      bitmap.clear();      
+      bitmap.clear();
+      bitmap.flush();
       var r = new XMLHttpRequest();
       //r.open("GET", "/assets/african_head/african_head.obj", true);
       r.open("GET", "/assets/bunny/bunny.obj", true);
@@ -35,6 +36,7 @@
           console.log('Got model!');
           model.loadFromOBJString(r.responseText);
           var triBuffer = model.toTriArray();
+          bitmap.clear();
           for (var i = 0; i < triBuffer.length/3; i++ ){
             var ax = (triBuffer[9*i + 0]+1) * kWidth/2;
             var ay = (-triBuffer[9*i + 1]+1) * kHeight/2;
@@ -46,6 +48,7 @@
             bresenhamLine(  bitmap, [ bx, by ], [ cx, cy ], [0,255,0,255]  );
             bresenhamLine(  bitmap, [ cx, cy ], [ ax, ay ], [0,255,0,255]  );
           }
+          bitmap.flush();
         }
       };
       r.send();

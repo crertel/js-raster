@@ -6,23 +6,29 @@ function Bitmap( width, height, $container ) {
   this._$canvas.height = height;
   $container.appendChild( this._$canvas );
   this._ctx = this._$canvas.getContext('2d');
-  this._imageInfo = this._ctx.createImageData( this._$canvas.width, this._$canvas.height );
   this._frameBufferData = new Uint8ClampedArray( this._width * this._height * 4 );
   this._frameBuffer = new ImageData(  this._frameBufferData, this._width, this._height );
-  this._tempPixelData = new Uint8ClampedArray(4);
-  this._tempPixel = new ImageData(this._tempPixelData,1,1);
 }
 
 Bitmap.prototype.clear = function() {
+  this._frameBufferData.fill(0);
+}
+
+Bitmap.prototype.flush = function() {
   this._ctx.putImageData(this._frameBuffer,0,0);
 }
 
-Bitmap.prototype.putPixel = function( val, x, y ){  
-  this._tempPixelData[0] = val[0];
-  this._tempPixelData[1] = val[1];
-  this._tempPixelData[2] = val[2];
-  this._tempPixelData[3] = val[3];
-  this._ctx.putImageData(this._tempPixel, x, y);
+Bitmap.prototype.putPixel = function(x, y, r, g, b, a ){
+  x = Math.floor(x);
+  y = Math.floor(y);
+
+  var imageRowStride = this._width * 4;
+  var pixelBaseIndex = (4*x) + (y* imageRowStride);
+
+  this._frameBufferData[ pixelBaseIndex + 0] = r;
+  this._frameBufferData[ pixelBaseIndex + 1] = g;
+  this._frameBufferData[ pixelBaseIndex + 2] = b;
+  this._frameBufferData[ pixelBaseIndex + 3] = a;
 }
 
 console.log("Loaded bitmap shim.");
