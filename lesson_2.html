@@ -26,6 +26,7 @@
       var model = new Model();
 
       bitmap.clear();
+      bitmap.flush();
       var r = new XMLHttpRequest();
       //r.open("GET", "/assets/african_head/african_head.obj", true);
       r.open("GET", "/assets/bunny/bunny.obj", true);
@@ -35,7 +36,10 @@
           console.log('Got model!');
           model.loadFromOBJString(r.responseText);
           var triBuffer = model.toTriArray();
-          for (var i = 0; i < triBuffer.length/3; i++ ){
+          bitmap.clear();
+
+ /*
+          for (var i = 0; i < triBuffer.length/9; i++ ){
             var ax = (triBuffer[9*i + 0]+1) * kWidth/2;
             var ay = (triBuffer[9*i + 1]+1) * kHeight/2;
             var az = (triBuffer[9*i + 2]+1) * kHeight/2;
@@ -49,8 +53,23 @@
                                             ax, ay, az,
                                             bx, by, bz,
                                             cx, cy, cz,
-                                            [0,255,0,255] );
+                                            [
+                                              255* Math.random(),
+                                              255* Math.random(),
+                                              255* Math.random(),
+                                              255
+                                            ]);
           }
+          */
+
+//          /*
+          rasterFlatTriangleBarycentric(  bitmap,
+                                          384, 128, 0,
+                                          128, 128, 0,
+                                          128, 384, 0,
+                                          [0,255,0,255] );
+//                                          */
+          bitmap.flush();
           console.log("Done drawing.");
         }
       };
