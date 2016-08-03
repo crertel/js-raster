@@ -1,5 +1,6 @@
 <html>
   <head>
+    <meta charset="utf-8" /> 
     <title> Lesson 2: Flat Shading </title>
     <script src="js/bitmap.js"></script>
     <script src="js/rasterFlatTriangleBarycentric.js"></script>
@@ -22,11 +23,12 @@
       var kWidth = 512;
       var kHeight = 512;
       var $viewport = document.getElementById('viewport-container');
-      var bitmap = new Bitmap( kWidth, kHeight, $viewport );
+      var framebuffer = new Bitmap( kWidth, kHeight, $viewport );
       var model = new Model();
 
-      bitmap.clear();
-      bitmap.flush();
+      framebuffer.clear();
+      framebuffer.flush();
+
       var r = new XMLHttpRequest();
       r.open("GET", "/assets/bunny/bunny.obj", true);
       r.onreadystatechange = function () {
@@ -34,9 +36,8 @@
           console.log('Got model!');
           model.loadFromOBJString(r.responseText);
           var triBuffer = model.toTriArray();
-          bitmap.clear();
 
- 
+          framebuffer.clear(); 
           for (var i = 0; i < triBuffer.length/9; i++ ){
             var ax = (triBuffer[9*i + 0]+1) * kWidth/2;
             var ay = (triBuffer[9*i + 1]+1) * kHeight/2;
@@ -47,7 +48,7 @@
             var cx = (triBuffer[9*i + 6]+1) * kWidth/2;
             var cy = (triBuffer[9*i + 7]+1) * kHeight/2;
             var cz = (triBuffer[9*i + 8]+1) * kHeight/2;
-            rasterFlatTriangleBarycentric(  bitmap,
+            rasterFlatTriangleBarycentric(  framebuffer,
                                             ax, ay, az,
                                             bx, by, bz,
                                             cx, cy, cz,
@@ -58,8 +59,8 @@
                                               255
                                             ]);
           }
+          framebuffer.flush();
 
-          bitmap.flush();
           console.log("Done drawing.");
         }
       };
