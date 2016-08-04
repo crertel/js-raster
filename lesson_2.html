@@ -24,6 +24,8 @@
       var kHeight = 512;
       var $viewport = document.getElementById('viewport-container');
       var framebuffer = new Bitmap( kWidth, kHeight, $viewport );
+      framebuffer.setDepthFunc( framebuffer.kDepthFunc.ALWAYS);
+
       var model = new Model();
 
       framebuffer.clear();
