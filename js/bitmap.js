@@ -67,6 +67,7 @@ Bitmap.prototype.putPixel = function(x, y, r, g, b, a, z ){
     this._frameBufferData[ pixelBaseIndex + 1] = g;
     this._frameBufferData[ pixelBaseIndex + 2] = b;
     this._frameBufferData[ pixelBaseIndex + 3] = a;
+    this._depthBuffer[ depthBaseIndex ] = z;
   }
 }
 
