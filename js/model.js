@@ -71,22 +71,24 @@ Model.prototype.loadFromOBJString = function( src ) {
     var kVertAndNormalOnly = /^(\d*)\/\/(\d*)$/;
     var kVertUVNormal = /^(\d*)\/(\d*)\/(\d*)$/;
 
-    var match;    
+    var match;
+
+    /* We have a lot of (...-1) here because OBJ is 1s indexed */
     switch( true ) {
-      case (kVertIndexOnly.test(tok)):      indices.vert = Number.parseInt(tok,10);
+      case (kVertIndexOnly.test(tok)):      indices.vert = Number.parseInt(tok,10) - 1;
                                             break;
       case (kVertAndUVOnly.test(tok)):      match = tok.match(kVertAndUVOnly);
-                                            indices.vert = Number.parseInt(match[1],10);
-                                            indices.uv = Number.parseInt(match[2],10);
+                                            indices.vert = Number.parseInt(match[1],10) - 1;
+                                            indices.uv = Number.parseInt(match[2],10) - 1;
                                             break;
       case (kVertAndNormalOnly.test(tok)):  match = tok.match(kVertAndNormalOnly);
-                                            indices.vert = Number.parseInt(match[1],10);
-                                            indices.normal = Number.parseInt(match[2],10);
+                                            indices.vert = Number.parseInt(match[1],10) - 1;
+                                            indices.normal = Number.parseInt(match[2],10) - 1;
                                             break;
       case (kVertUVNormal.test(tok)):       match = tok.match(kVertUVNormal);
-                                            indices.vert = Number.parseInt(match[1],10);
-                                            indices.uv = Number.parseInt(match[2],10);
-                                            indices.normal = Number.parseInt(match[3],10);
+                                            indices.vert = Number.parseInt(match[1],10) - 1;
+                                            indices.uv = Number.parseInt(match[2],10) - 1;
+                                            indices.normal = Number.parseInt(match[3],10) - 1;
                                             break;
       default: break;
     }
@@ -106,9 +108,9 @@ Model.prototype.loadFromOBJString = function( src ) {
     return toks.slice(1)
             .map(decodeFaceToken)
             .reduce( function globIndices( out, indices ){
-              out.push( indices.vert - 1 );
-              out.push( indices.uv - 1);
-              out.push( indices.normal - 1);
+              out.push( indices.vert);
+              out.push( indices.uv);
+              out.push( indices.normal);
               return out;
           },[]);
   }
@@ -138,7 +140,7 @@ Model.prototype.loadFromOBJString = function( src ) {
     '\t', this._verts.length/3, ' vertices\n',
     '\t', this._uvs.length/2, ' UVs\n',
     '\t', this._normals.length/3, ' normals\n',
-    '\t', this._faces.length/3, ' faces');
+    '\t', this._faces.length/9, ' faces'); /* divide by 9 because 3 per face, 3 coords for position/vertx/normal */
 
   return processedLines;
 }
