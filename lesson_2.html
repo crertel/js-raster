@@ -9,47 +9,55 @@
       body,html {
         background-color: #000;
       }
-      #viewport-container{
-      }
-      #viewport-container canvas {
+      #viewport{
         background-color: #fff;
+      }
+      #debug-info{
+        color:#fff;
       }
     </style>
   </head>
   <body>
-    <div id="viewport-container">
+    <canvas id="viewport">
+    </canvas>
+    <div id="debug-info">
     </div>
     <script>
       var kWidth = 512;
       var kHeight = 512;
-      var $viewport = document.getElementById('viewport-container');
+      var $viewport = document.getElementById('viewport');
+      var $debug = document.getElementById('debug-info');
       var framebuffer = new Bitmap( kWidth, kHeight, $viewport );
-      framebuffer.setDepthFunc( framebuffer.kDepthFunc.ALWAYS);
-
-      var model = new Model();
+      
+      //framebuffer.setDepthFunc( Bitmap.kDepthFunc.ALWAYS);
+      framebuffer.setDepthFunc( Bitmap.kDepthFunc.GREATER);
 
       framebuffer.clear();
       framebuffer.flush();
+      framebuffer.addPicker( function _getInfo(x,y){
+        $debug.innerHTML = JSON.stringify( framebuffer.getDebugInfoForPixel(x,y));
+      });
 
       var r = new XMLHttpRequest();
       r.open("GET", "/assets/bunny/bunny.obj", true);
+      //r.open("GET", "/assets/cube/cube.obj", true);
       r.onreadystatechange = function () {
         if (r.readyState == 4 && r.status < 400) {
           console.log('Got model!');
-          model.loadFromOBJString(r.responseText);
+          var model = Model.loadFromOBJString(r.responseText);
           var triBuffer = model.toTriArray();
 
           framebuffer.clear(); 
-          for (var i = 0; i < triBuffer.length/9; i++ ){
-            var ax = (triBuffer[9*i + 0]+1) * kWidth/2;
-            var ay = (triBuffer[9*i + 1]+1) * kHeight/2;
-            var az = (triBuffer[9*i + 2]+1) * kHeight/2;
-            var bx = (triBuffer[9*i + 3]+1)* kWidth/2;
-            var by = (triBuffer[9*i + 4]+1)* kHeight/2;
-            var bz = (triBuffer[9*i + 5]+1) * kHeight/2;
-            var cx = (triBuffer[9*i + 6]+1) * kWidth/2;
-            var cy = (triBuffer[9*i + 7]+1) * kHeight/2;
-            var cz = (triBuffer[9*i + 8]+1) * kHeight/2;
+          for (var f = 0; f < triBuffer.length/9; f++ ){
+            var ax = (triBuffer[24*f + 0]+1) * kWidth/2;
+            var ay = (triBuffer[24*f + 1]+1) * kHeight/2;
+            var az = (triBuffer[24*f + 2]+1) * kHeight/2;
+            var bx = (triBuffer[24*f + 8]+1)* kWidth/2;
+            var by = (triBuffer[24*f + 9]+1)* kHeight/2;
+            var bz = (triBuffer[24*f + 10]+1)* kHeight/2;
+            var cx = (triBuffer[24*f + 16]+1) * kWidth/2;
+            var cy = (triBuffer[24*f + 17]+1) * kHeight/2;
+            var cz = (triBuffer[24*f + 18]+1) * kHeight/2;
             rasterFlatTriangleBarycentric(  framebuffer,
                                             ax, ay, az,
                                             bx, by, bz,

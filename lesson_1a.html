@@ -7,20 +7,18 @@
       body,html {
         background-color: #000;
       }
-      #viewport-container{
-      }
-      #viewport-container canvas {
+      #viewport{
         background-color: #fff;
-      }
+      }      
     </style>
   </head>
   <body>
-    <div id="viewport-container">
-    </div>
+    <canvas id='viewport'>
+    </canvas>
     <script>
       var kWidth = 256;
       var kHeight = 256;
-      var $viewport = document.getElementById('viewport-container');
+      var $viewport = document.getElementById('viewport');
       var bitmap = new Bitmap( kWidth, kHeight, $viewport );
 
       var theta = 0;

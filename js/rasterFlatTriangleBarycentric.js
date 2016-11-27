@@ -53,9 +53,10 @@ function rasterFlatTriangleBarycentric( bitmap, ax, ay, az, bx, by, bz, cx, cy, 
       var w2 =    edgeFunction( ax, ay, bx, by, x, y );
   
       if ( w0 > 0 && w1 > 0 && w2 > 0) {
-        var z = caluclateDepth( ax, ay, az, bx, by, bz, cx, cy, cz, x, y);
-        //bitmap.putPixel(x,y, color[0], color[1], color[2], color[3], z);
-        bitmap.putPixel(x,y, z,0,0, color[3], z);
+        //var z = caluclateDepth( ax, ay, az, bx, by, bz, cx, cy, cz, x, y);
+        var z = w0*az + w1*bz + w2*cz;
+        bitmap.putPixel(x,y, color[0], color[1], color[2], color[3], z);
+        //bitmap.putPixel(x,y, z,0,0, color[3], z);
       }
     }
   }
