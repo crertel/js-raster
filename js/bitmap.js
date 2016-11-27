@@ -19,9 +19,9 @@ Bitmap.kDepthFunc = {
 
 Bitmap.prototype.resize = function( newWidth, newHeight) {  
   this._$canvas.width = this._width =  newWidth;
-  this._$canvas.height = this._height = newHeight;
-  this._frameBufferData = new Uint8ClampedArray( this._width * this._height * 4 );
-  this._frameBuffer = new ImageData(  this._frameBufferData, this._width, this._height );
+  this._$canvas.height = this._height = newHeight;  
+  this._frameBufferData = new Uint32Array( this._width * this._height);
+  this._frameBuffer = new ImageData(  new Uint8ClampedArray(this._frameBufferData.buffer), this._width, this._height );
   this._depthBuffer = new Float32Array( this._width * this._height );
 }
 
@@ -48,17 +48,13 @@ Bitmap.prototype.putPixel = function(x, y, r, g, b, a, z ){
     x = Math.floor(x);
     y = Math.floor(y);
 
-    var depthBaseIndex = (x + (y*this._width)); /* indexing a pile of floats */
-    var pixelBaseIndex = 4 * (x + (y*this._width)); /* RGBA, 4 bytes per pixel */
+    var pixelIndex = (x + (y*this._width));
 
-    if ( this._depthFunc( this._depthBuffer[depthBaseIndex], z ) ) {
-      this._frameBufferData[ pixelBaseIndex + 0] = r;
-      this._frameBufferData[ pixelBaseIndex + 1] = g;
-      this._frameBufferData[ pixelBaseIndex + 2] = b;
-      this._frameBufferData[ pixelBaseIndex + 3] = a;
+    if ( this._depthFunc( this._depthBuffer[pixelIndex], z ) ) {
+      this._frameBufferData[ pixelIndex ] = r | (g << 8) | (b << 16) | (a<<24);
 
       if (this._depthMask) {
-        this._depthBuffer[ depthBaseIndex ] = z;
+        this._depthBuffer[ pixelIndex ] = z;
       }
     }
   }
@@ -68,17 +64,16 @@ Bitmap.prototype.getDebugInfoForPixel = function( x, y ) {
   x = Math.floor(x);
   y = Math.floor(y);
 
-  var depthBaseIndex = (x + (y*this._width)); /* indexing a pile of floats */
-  var pixelBaseIndex = 4 * (x + (y*this._width)); /* RGBA, 4 bytes per pixel */
+  var pixelIndex = (x + (y*this._width));
 
   return {
     x: x,
     y: y,
-    r: this._frameBufferData[ pixelBaseIndex + 0],
-    g: this._frameBufferData[ pixelBaseIndex + 1],
-    b: this._frameBufferData[ pixelBaseIndex + 2],
-    a: this._frameBufferData[ pixelBaseIndex + 3],
-    z: this._depthBuffer[ depthBaseIndex ]
+    r: this._frameBufferData[ pixelIndex ] & 0x000000ff,
+    g: this._frameBufferData[ pixelIndex ] & 0x0000ff00 >> 8,
+    b: this._frameBufferData[ pixelIndex ] & 0x00ff0000 >> 16,
+    a: this._frameBufferData[ pixelIndex ] & 0xff000000 >> 24,
+    z: this._depthBuffer[ pixelIndex ]
   }  
 }
 
