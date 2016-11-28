@@ -35,7 +35,7 @@
       framebuffer.clear();
       framebuffer.flush();
       framebuffer.addPicker( function _getInfo(x,y){
-        $debug.innerHTML = JSON.stringify( framebuffer.getDebugInfoForPixel(x,y));
+        $debug.innerHTML = JSON.stringify( framebuffer.getDebugInfoForPixel(x,y) );
       });
 
       var r = new XMLHttpRequest();
